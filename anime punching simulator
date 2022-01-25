@@ -1,0 +1,230 @@
+--https://www.roblox.com/games/8357510970/
+
+_G.autoTap = false
+_G.autoRebirth = false
+_G.autoPractice = false
+_G.autoEgg = false
+_G.autoUpgrade = false
+_G.autoRank = false
+_G.autoAura = false
+
+pcall(function()
+    game:GetService("Players").LocalPlayer.PlayerGui.Ui.CenterFrame.Error:Destroy()
+    game:GetService("Players").LocalPlayer.PlayerGui.EggAnimation:Destroy()
+end)
+
+local plr = game.Players.LocalPlayer.Character.HumanoidRootPart
+local tickk = tick()
+local reb = {}
+local practiceArea = {}
+local egg = {}
+
+for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Ui.CenterFrame.Rebirths.Frame:GetChildren()) do
+    if v:IsA("ImageLabel") and not table.find(reb,v.Price.Text) then
+        table.insert(reb,v.Price.Text)
+    end
+end
+
+for i, v in pairs(game.Workspace.__SETTINGS.__INTERACT:GetChildren()) do
+    if v.Name == "Practice" and not table.find(practiceArea,v.Area.Value) then
+        table.insert(practiceArea,v.Area.Value)
+    end
+end 
+
+for i, v in pairs(game.Workspace.__SETTINGS.__INTERACT:GetChildren()) do
+    if v.Name == "EGG" and not table.find(egg,v.Tier.Value) then 
+        table.insert(egg,v.Tier.Value)
+    end
+end
+
+local title = 'Anime Punching Simulator'
+for i, v in pairs(game.CoreGui:GetChildren()) do
+    if v.Name == title then
+        v:Destroy()
+    end
+end
+
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/zxciaz/VenyxUI/main/Reuploaded"))()
+local venyx = library.new(tostring(title), 5012544693)
+ 
+local themes = {
+    Background = Color3.fromRGB(24, 24, 24),
+    Glow = Color3.fromRGB(0, 0, 0),
+    Accent = Color3.fromRGB(10, 10, 10),
+    LightContrast = Color3.fromRGB(20, 20, 20),
+    DarkContrast = Color3.fromRGB(14, 14, 14),  
+    TextColor = Color3.fromRGB(255, 255, 255)
+} 
+
+local page1 = venyx:addPage("Farming", 5012544693)
+local sec1 = page1:addSection("Tap")
+local sec2 = page1:addSection("Rebirth")
+local sec3 = page1:addSection("Practice")
+
+sec1:addToggle("Auto Tap", nil, function(v)
+    _G.autoTap = v
+
+    task.spawn(function()
+        while task.wait() do
+            if not _G.autoTap then break end
+            game:GetService("ReplicatedStorage").Remotes.ClientRemote:InvokeServer("Tapping")   
+        end
+    end)
+end)
+
+sec2:addToggle("Auto Rebirth", nil, function(v)
+    _G.autoRebirth = v
+
+    task.spawn(function()
+        while task.wait() do
+            if not _G.autoRebirth then break end
+            game:GetService("ReplicatedStorage").Remotes.ClientRemote:InvokeServer("Rebirths",selectedNum)
+        end
+    end)
+end)
+
+sec2:addDropdown("Select Rebirth Amount", reb, function(value)
+    for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Ui.CenterFrame.Rebirths.Frame:GetChildren()) do
+        if v:IsA("ImageLabel") and v.Price.Text == tostring(value) then
+            selectedNum = tonumber(v.Name)
+        end
+    end
+end)
+
+sec3:addToggle("Auto Practice", nil,function(v)
+    _G.autoPractice = v
+    
+    task.spawn(function()
+        while task.wait() do
+            if not _G.autoPractice then break end
+            for i, v in pairs(game.Workspace.__SETTINGS.__INTERACT:GetChildren()) do
+                if v.Name == "Practice" and v.Area.Value == selectedArea then
+                    plr.CFrame = v.CFrame * CFrame.new(0,0,5)
+                    game:GetService("ReplicatedStorage").Remotes.ClientRemote:InvokeServer("Practice",v)
+                end
+            end
+        end
+    end)
+end)
+
+sec3:addDropdown("Select Practice Area", practiceArea, function(v)
+    selectedArea = v
+end)
+
+local eggPage = venyx:addPage("Heroes", 5012544693)
+local sec4 = eggPage:addSection("Egg")
+
+sec4:addToggle("Open Egg", nil, function(v)
+    _G.autoEgg = v
+
+    task.spawn(function()
+        while task.wait() do
+            if not _G.autoEgg then break end
+            plr.CFrame = selectedEgg.CFrame * CFrame.new(0,0,5)
+            local args = {
+                [1] = "EGG",
+                [2] = selectedEgg,
+                [3] = "1",
+                [4] = {}
+            }
+            game:GetService("ReplicatedStorage").Remotes.ClientRemote:InvokeServer(unpack(args))
+        end
+    end)
+end)
+
+sec4:addDropdown("Select Egg", egg, function(value)
+    for i, v in pairs(game.Workspace.__SETTINGS.__INTERACT:GetChildren()) do
+        if v.Name == "EGG" and v.Tier.Value == value then 
+            selectedEgg = v
+        end
+    end 
+end)
+
+local shopPage = venyx:addPage("Shop", 5012544693)
+local upgSec = shopPage:addSection("Upgrades")
+local rankSec = shopPage:addSection("Ranks")
+local auraSec = shopPage:addSection("Auras")
+
+upgSec:addToggle("Buy Upgrade", nil, function(v)
+    _G.autoUpgrade = v
+
+    task.spawn(function()
+        while task.wait() do
+            if not _G.autoUpgrade then break end
+            for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Ui.CenterFrame.Shop.Upgrades:GetChildren()) do
+                if v:IsA("ImageLabel") then
+                    game:GetService("ReplicatedStorage").Remotes.ClientRemote:InvokeServer("Upgrade",tonumber(v.Name))
+                end
+            end
+            
+        end
+    end)
+end) 
+
+rankSec:addToggle("Buy Rank", nil, function(v)
+    _G.autoRank = v
+
+    task.spawn(function()
+        while task.wait() do
+            if not _G.autoRank then break end
+            for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Ui.CenterFrame.Shop.Ranks:GetChildren()) do
+                if v:IsA("ImageLabel") then
+                    game:GetService("ReplicatedStorage").Remotes.ClientRemote:InvokeServer("Ranks",tonumber(v.Name))
+                end
+            end
+            
+        end
+    end)
+end)
+
+auraSec:addToggle("Buy Aura", nil, function(v)
+    _G.autoAura = v
+
+    task.spawn(function()
+        while task.wait() do
+            if not _G.autoAura then break end
+            for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.Ui.CenterFrame.Auras.Frame:GetChildren()) do
+                if v:IsA("ImageLabel") then
+                    game:GetService("ReplicatedStorage").Remotes.ClientRemote:InvokeServer("Auras",tonumber(v.Name))
+                end
+            end
+            
+        end
+    end)
+end)
+
+local telePage = venyx:addPage("Teleports", 5012544693)
+local teleSec = telePage:addSection("Teleport")
+
+for i, v in pairs(game:GetService("Workspace")["__SETTINGS"]["__AREAS"]:GetChildren()) do
+    teleSec:addButton(v.Name, function()
+        plr.CFrame = v.CFrame
+    end)
+end
+
+local page2 = venyx:addPage("Misc", 5012544693)
+local sec9 = page2:addSection("Credits")
+ 
+sec9:addButton("Created by Uzu", function() 
+    print("ASD")
+end)
+ 
+sec9:addKeybind("Keybind", Enum.KeyCode.LeftControl, function()
+    venyx:toggle()
+end)
+ 
+sec9:addButton("Delete Gui", function()
+    for i, v in pairs(game.CoreGui:GetChildren()) do
+        if v.Name == title then
+            v:Destroy()
+        end
+    end
+end)
+ 
+venyx:SelectPage(venyx.pages[1], true)
+
+for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do  
+    v:Disable()	
+end
+
+print("script took",string.format("%.0f",tick()-tickk),"seconds to load")
