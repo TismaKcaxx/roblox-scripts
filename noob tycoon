@@ -1,0 +1,7 @@
+spawn(function()
+for _,v in pairs(game.workspace.Map.Treasures:GetChildren()) do
+if v:IsA("Part") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+end
+end
+end)
